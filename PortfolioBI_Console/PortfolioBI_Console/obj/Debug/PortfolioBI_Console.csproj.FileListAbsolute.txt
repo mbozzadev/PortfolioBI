@@ -1,0 +1,8 @@
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\bin\Debug\PortfolioBI_Console.exe.config
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\bin\Debug\PortfolioBI_Console.exe
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\bin\Debug\PortfolioBI_Console.pdb
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\obj\Debug\PortfolioBI_Console.csproj.AssemblyReference.cache
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\obj\Debug\PortfolioBI_Console.csproj.SuggestedBindingRedirects.cache
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\obj\Debug\PortfolioBI_Console.csproj.CoreCompileInputs.cache
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\obj\Debug\PortfolioBI_Console.exe
+C:\Users\mikeb\Desktop\Dev Projects\PortfolioBI_2\PortfolioBI_Console\PortfolioBI_Console\obj\Debug\PortfolioBI_Console.pdb
