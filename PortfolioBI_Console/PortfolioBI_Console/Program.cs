@@ -10,11 +10,12 @@ namespace PortfolioBI_Console
     {
         static void Main(string[] args)
         {
+
             Console.WriteLine("Starting PortfolioBI App");
             try
             {
                 PBI_Driver pbi = new PBI_Driver();
-                pbi.BeginPBIProcessing();
+                pbi.BeginPBI();                
             }
             catch (Exception ex)
             {
