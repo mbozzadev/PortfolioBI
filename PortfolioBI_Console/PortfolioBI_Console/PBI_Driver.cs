@@ -376,16 +376,20 @@ namespace PortfolioBI_Console
 
             //Now that our data is in a datatable, we can find the min, max, and average closing price
 
-            var minClose = JSONDT.Compute("MIN(Close)", "");
-            var maxClose = JSONDT.Compute("MAX(Close)", "");
-            var avgClose = ComputeAvg(JSONDT,"Close");
+            decimal minClose = Convert.ToDecimal(JSONDT.Compute("MIN(Close)", ""));
+            decimal maxClose = Convert.ToDecimal(JSONDT.Compute("MAX(Close)", ""));
+            decimal avgClose = ComputeAvg(JSONDT,"Close");
+
+            decimal minClose_Rounded = Math.Round(minClose, 4);
+            decimal maxClose_Rounded = Math.Round(maxClose, 4);
+            decimal avgClose_Rounded = Math.Round(avgClose, 4);
 
             //var avgClose2 = (double)JSONDT.Compute("AVG([Close])", "");
             //var avgClose3 = JSONDT.Compute("AVG([Close])", "Close is not null");
 
-            Console.WriteLine("Min Closing Price: " + minClose.ToString());
-            Console.WriteLine("Max Closing Price: " + maxClose.ToString());
-            Console.WriteLine("Avg Closing Price: " + avgClose.ToString());
+            Console.WriteLine("Min Closing Price: " + minClose_Rounded.ToString());
+            Console.WriteLine("Max Closing Price: " + maxClose_Rounded.ToString());
+            Console.WriteLine("Avg Closing Price: " + avgClose_Rounded.ToString());
 
 
             switch (runROI)
@@ -444,13 +448,19 @@ namespace PortfolioBI_Console
                                     //This gets us the prices paid at opening for 1000 shares in 2022
                                     decimal priceOf1000Shares_2022 = cfg.openPrice_2022 * 1000;
 
-                                    decimal netIncome = priceOf1000Shares_2022 - priceOf1000Shares_2015;
+                                    decimal netIncome = (priceOf1000Shares_2022 - priceOf1000Shares_2015);
 
                                     decimal ROI = (netIncome / priceOf1000Shares_2015) * 100;
 
                                     string ROIPercentage = Math.Round(ROI,2).ToString();
 
-                                    Console.WriteLine("ROI Percentage: " + ROIPercentage + "%");
+                                    Console.WriteLine("ROI Percentage (1000 shares): " + ROIPercentage + "%");
+
+                                    //decimal perShareIncome = (cfg.openPrice_2022 - cfg.openPrice_2015);
+                                    //decimal perShareROI = (perShareIncome / cfg.openPrice_2015) * 100;
+                                    //string perShareROIPercentage = Math.Round(perShareROI, 2).ToString();
+
+                                    //Console.WriteLine("ROI Percentage (Per Share): " + perShareROIPercentage + "%");
                                     break;
                             }
 
