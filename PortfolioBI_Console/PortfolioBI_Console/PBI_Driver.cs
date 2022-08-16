@@ -25,6 +25,9 @@ namespace PortfolioBI_Console
             public bool useJSON;            //If set, we use JSON to process the CSV file(s)
             public int useThreads;          //Depending on value set, depends on how we will execute the code
             public string currentDataFile;  //Used mainly for logging our current data read
+
+            public decimal openPrice_2015;
+            public decimal openPrice_2022;
         }
 
         public struct CSVRow
@@ -232,19 +235,20 @@ namespace PortfolioBI_Console
             Console.WriteLine("Processing Local File");
 
             List<string> dataFiles = new List<string>();
-            
+
             string corningDataFile = "Corning_GLW_2015Data.csv";
             dataFiles.Add(corningDataFile);
-            
-            string nvidiaDataFile = "Nvidia_NVDA_2015Data.csv";
-            dataFiles.Add(nvidiaDataFile);
+
+            string nvidia2015DataFile = "Nvidia_NVDA_2015Data.csv";
+            dataFiles.Add(nvidia2015DataFile);
+
+            string nvidia2015_2018DataFile = "Nvidia_NVDA_2022Data.csv";
+            dataFiles.Add(nvidia2015_2018DataFile);
 
             switch (cfg.useThreads)
             {
                 case 0:
-
                     ProcessFiles(cfg, dataFiles);
-
                     break;
 
                 case 1:
@@ -262,7 +266,7 @@ namespace PortfolioBI_Console
 
         }
 
-        private void ProcessFiles(BI_Cfg cfg, List<string> dataFiles, bool useJSON = false)
+        private void ProcessFiles(BI_Cfg cfg, List<string> dataFiles)
         {
             //Data pulled from Yahoo Finance
             for (int fileIdx = 0; fileIdx < dataFiles.Count; fileIdx++)
@@ -272,10 +276,20 @@ namespace PortfolioBI_Console
                 string fullDataFile = Path.Combine(cfg.Location, dataFile);
                 //FileInfo dataFileInfo = new FileInfo(fullDataFile);
 
+                bool runROILogic = false; 
+
+                switch (dataFile)
+                {
+                    case "Nvidia_NVDA_2015Data.csv":
+                    case "Nvidia_NVDA_2022Data.csv":
+                        runROILogic = true;
+                        break;
+                }
+
                 switch (cfg.useJSON)
                 {
                     case true:
-                        ProcessJSONToDataTable(cfg, fullDataFile);
+                        ProcessJSONToDataTable(ref cfg, fullDataFile, runROILogic);
                         break;
 
                     case false:
@@ -355,7 +369,7 @@ namespace PortfolioBI_Console
 
         #region JSON Processing
 
-        private void ProcessJSONToDataTable(BI_Cfg cfg, string dataFile)
+        private void ProcessJSONToDataTable(ref BI_Cfg cfg, string dataFile, bool runROI = false)
         {
             string csvJSON = ConvertCsvFileToJsonObject(dataFile);
             DataTable JSONDT = DeserializeJSONToDataTable(csvJSON);
@@ -369,14 +383,82 @@ namespace PortfolioBI_Console
             //var avgClose2 = (double)JSONDT.Compute("AVG([Close])", "");
             //var avgClose3 = JSONDT.Compute("AVG([Close])", "Close is not null");
 
-
-            //for (int rowIdx = 0; rowIdx < JSONDT.Rows.Count; rowIdx++)
-            //{
-            //    DataRow jsonRow = JSONDT.Rows[rowIdx];
-            //    CSVRow currentDataRow = GetCSVInfo(jsonRow);
+            Console.WriteLine("Min Closing Price: " + minClose.ToString());
+            Console.WriteLine("Max Closing Price: " + maxClose.ToString());
+            Console.WriteLine("Avg Closing Price: " + avgClose.ToString());
 
 
-            //}
+            switch (runROI)
+            {
+                //This is hacky, but is strictly for the sake of the case study
+                case true:
+                    //We want to calculate the ROI for 1000 shares
+                    //We will use the Open value from 01/02/15 and 01/03/22, which gives us a 7 year gap to really show a true ROI over the course of time
+
+                    string selection = "Date = '1/2/2015'";
+
+                    DataRow[] ROI_2015Row = JSONDT.Select(selection);
+
+                    switch (ROI_2015Row.Length > 0)
+                    {
+                        case true:
+                            //We have a 2015 date, so let's assign to our cfg for now
+                            CSVRow row_2015 = GetCSVInfo(ROI_2015Row[0]);
+                            cfg.openPrice_2015 = row_2015.OpenPrice;
+                            break;
+
+                        case false:
+                            //We should be in the 2022 Data file
+                            break;
+                    }
+                    selection = "Date = '1/3/2022'";
+                    DataRow[] ROI_2022Row = JSONDT.Select(selection);
+
+                    switch (ROI_2022Row.Length > 0)
+                    {
+                        case true:
+                            //We have a 2022 date, so let's assign to our cfg for now
+                            CSVRow row_2022 = GetCSVInfo(ROI_2022Row[0]);
+                            cfg.openPrice_2022 = row_2022.OpenPrice;
+                            break;
+
+                        case false:
+                            //We should be in the 2015 Data file
+                            break;
+                    }
+
+                    switch (cfg.openPrice_2015 == 0)
+                    {
+                        case false:
+
+                            switch (cfg.openPrice_2022 == 0)
+                            {
+                                case false:
+                                    //We have data from both 2015 and 2022, so we can compare and run our ROI logic now
+
+                                    //ROI = (Net Income / Initial Cost of Investment) * 100
+
+                                    //This gets us the prices paid at opening for 1000 shares in 2015
+                                    decimal priceOf1000Shares_2015 = cfg.openPrice_2015 * 1000;
+
+                                    //This gets us the prices paid at opening for 1000 shares in 2022
+                                    decimal priceOf1000Shares_2022 = cfg.openPrice_2022 * 1000;
+
+                                    decimal netIncome = priceOf1000Shares_2022 - priceOf1000Shares_2015;
+
+                                    decimal ROI = (netIncome / priceOf1000Shares_2015) * 100;
+
+                                    string ROIPercentage = Math.Round(ROI,2).ToString();
+
+                                    Console.WriteLine("ROI Percentage: " + ROIPercentage + "%");
+                                    break;
+                            }
+
+                            break;
+                    }
+
+                    break;
+            }
 
 
         }
